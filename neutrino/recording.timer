@@ -5,7 +5,7 @@ IP="192.168.178.120";
 MP="/mnt/mnt0";
 SHARENAME="triplex";
 MAXTRY="10";
-DATEFORMAT="%d-%m-%y %H:%M:%S;
+DATEFORMAT="%d-%m-%y %H:%M:%S";
 /bin/touch  /tmp/test.txt
 echo $(date + $DATEFORMAT) "recording.timer: Timer gestartet..." >> /tmp/test.txt
 I=0;
