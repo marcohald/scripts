@@ -7,36 +7,39 @@ SHARENAME="triplex";
 MAXTRY="10";
 DATEFORMAT="+%d-%m-%y %H:%M:%S";
 LOGFILE="/tmp/log.txt";
+USER="triplex";
+PASS="NASZugriff123*";
+mount -t cifs -o user=$USER,password=$PASS  //$IP/$SHARENAME $MP
 
 /bin/touch  "$LOGFILE"
 echo $(date "$DATEFORMAT") "recording.timer: Timer gestartet..." >> "$LOGFILE"
 I=0;
 while ! ping -c 1  $IP >> /dev/null; do
-	if [ "$I" -lt "$MAXTRY" ]; then
-		I=$((I + 1));
-		/sbin/ether-wake $MAC;
-		sleep 10;
-		echo $(date "$DATEFORMAT") "recording.timer: $IP not reachable try $I ..."  >> "$LOGFILE"
+    if [ "$I" -lt "$MAXTRY" ]; then
+        I=$((I + 1));
+        /sbin/ether-wake $MAC;
+        sleep 10;
+        echo $(date "$DATEFORMAT") "recording.timer: $IP not reachable try $I ..."  >> "$LOGFILE"
     else
-		echo $(date "$DATEFORMAT") "recording.timer: Exit script after $I failed Wake UP trys ..." >> "$LOGFILE"
-		exit
+        echo $(date "$DATEFORMAT") "recording.timer: Exit script after $I failed Wake UP trys ..." >> "$LOGFILE"
+        exit
     fi
 done
 I=0;
 while (! grep -qs $IP /proc/mounts) ; do
-	if [ "$I" -lt "$MAXTRY" ]; then
-		I=$((I + 1));
-		echo $(date "$DATEFORMAT") "recording.timer: try $I to mount NAS  ..." >> "$LOGFILE"
-		mount -t cifs -o user=guest  //$IP/$SHARENAME $MP	>> "$LOGFILE"
-	else
-		echo $(date "$DATEFORMAT") "recording.timer: Exit script after $I failed mounts ..." >> "$LOGFILE"
-		exit
-	fi
+    if [ "$I" -lt "$MAXTRY" ]; then
+        I=$((I + 1));
+        echo $(date "$DATEFORMAT") "recording.timer: try $I to mount NAS  ..." >> "$LOGFILE"
+        mount -t cifs -o user=$USER,password=$PASS  //$IP/$SHARENAME $MP >> "$LOGFILE"
+    else
+        echo $(date "$DATEFORMAT") "recording.timer: Exit script after $I failed mounts ..." >> "$LOGFILE"
+        exit
+    fi
 done
 
 echo $(date "$DATEFORMAT") "recording.timer: Clear EPG..."  >> "$LOGFILE"
-/bin/sectionsdcontrol --freemem	>> "$LOGFILE"
-/bin/sectionsdcontrol --readepg $MP/epg	>> "$LOGFILE"
+/bin/sectionsdcontrol --freemem >> "$LOGFILE"
+/bin/sectionsdcontrol --readepg $MP/epg >> "$LOGFILE"
 echo $(date "$DATEFORMAT") "recording.timer: EPG eingelesen..."  >> "$LOGFILE"
 
 exit 0
